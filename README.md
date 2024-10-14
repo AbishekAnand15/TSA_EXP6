@@ -13,33 +13,37 @@
 5. Train a final multiplicative Holt-Winters model on the full dataset and forecast future gold prices.
 ### PROGRAM:
 ```
+
+import pandas as pd
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-import pandas as pd
 
-data = pd.read_csv('/content/Gold Price.csv', index_col='Date', parse_dates=True)
+# Load the Superstore dataset
+# Replace the path with the location where the Kaggle dataset is stored
+data = pd.read_csv('/content/Super_Store_data.csv', parse_dates=['Order Date'], index_col='Order Date',encoding='ISO-8859-1')
 
-# Calculate the mean of all columns resampled to month start frequency
-data = data.resample('MS').mean() 
+# Filter for 'Furniture' sales
+furniture_sales = data[data['Category'] == 'Furniture']
 
-# Select the 'PRICE' column for analysis
-data = data['Price']
+# Resample data to a monthly frequency (sum of sales per month)
+monthly_sales = furniture_sales['Sales'].resample('MS').sum()
 
-# Scaling the Data using MinMaxScaler 
+# Scaling the Data using MinMaxScaler
 scaler = MinMaxScaler()
-data_scaled = pd.Series(scaler.fit_transform(data.values.reshape(-1, 1)).flatten(), index=data.index)
+sales_scaled = pd.Series(scaler.fit_transform(monthly_sales.values.reshape(-1, 1)).flatten(), index=monthly_sales.index)
 
 # Split into training and testing sets (80% train, 20% test)
-train_data = data_scaled[:int(len(data_scaled) * 0.8)]
-test_data = data_scaled[int(len(data_scaled) * 0.8):]
+train_data = sales_scaled[:int(len(sales_scaled) * 0.8)]
+test_data = sales_scaled[int(len(sales_scaled) * 0.8):]
 
+# Step 2: Fit the Holt-Winters model with additive trend and seasonality
 fitted_model_add = ExponentialSmoothing(
     train_data, trend='add', seasonal='add', seasonal_periods=12
 ).fit()
 
-# Forecast and evaluate
+# Step 3: Forecast and evaluate
 test_predictions_add = fitted_model_add.forecast(len(test_data))
 
 # Evaluate performance
@@ -51,21 +55,29 @@ plt.figure(figsize=(12, 8))
 plt.plot(train_data, label='TRAIN', color='black')
 plt.plot(test_data, label='TEST', color='green')
 plt.plot(test_predictions_add, label='PREDICTION', color='red')
-plt.title('Train, Test, and Additive Holt-Winters Predictions')
+plt.title('Train, Test, and Additive Holt-Winters Predictions for Furniture Sales')
 plt.legend(loc='best')
 plt.show()
 
-final_model = ExponentialSmoothing(data, trend='mul', seasonal='mul', seasonal_periods=12).fit()
+# Step 4: Fit the final model on the entire dataset
+# Final model with additive trend and seasonality
+final_model = ExponentialSmoothing(
+    sales_scaled, trend='add', seasonal='add', seasonal_periods=12
+).fit()
 
-# Forecast future values
+
+# Forecast future values (next 12 months)
 forecast_predictions = final_model.forecast(steps=12)
 
-data.plot(figsize=(12, 8), legend=True, label='Current Gold Price')
-forecast_predictions.plot(legend=True, label='Forecasted Gold Price')
+# Step 5: Plot the actual and forecasted sales
+plt.figure(figsize=(12, 8))
+monthly_sales.plot(legend=True, label='Current Furniture Sales')
+forecast_predictions.plot(legend=True, label='Forecasted Furniture Sales')
 plt.xlabel('Date')
-plt.ylabel('Price')
-plt.title('Gold Price Forecast')
+plt.ylabel('Sales')
+plt.title('Furniture Sales Forecast')
 plt.show()
+
 ```
 
 ### OUTPUT:
