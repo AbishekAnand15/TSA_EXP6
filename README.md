@@ -1,95 +1,68 @@
-### Name  : ABISHEK XAVIER A
-### Reg.No: 212222230004
-### Date  : 
+# Ex.No: 6 HOLT WINTERS METHOD->
+### Date: 06/04/2024
 
-# Ex.No: 6               HOLT WINTERS METHOD
-### AIM:
-   To implement the Holt Winters Method Model using Python.
-### ALGORITHM:
-1. Load and resample the gold price data to monthly frequency, selecting the 'Price' column.
-2. Scale the data using Minmaxscaler then split into training (80%) and testing (20%) sets.
-3. Fit an additive Holt-Winters model to the training data and forecast on the test data.
-4. Evaluate model performance using MAE and RMSE, and plot the train, test, and prediction results.
-5. Train a final multiplicative Holt-Winters model on the full dataset and forecast future gold prices.
-### PROGRAM:
+## AIM:
+To create and implement Holt Winter's Method Model using python.
+
+## ALGORITHM:
+1. You import the necessary libraries
+2. You load a CSV file containing daily sales data into a DataFrame, parse the 'date' column as
+datetime, and perform some initial data exploration
+3. You group the data by date and resample it to a monthly frequency (beginning of the month
+4. You plot the time series data
+5. You import the necessary 'statsmodels' libraries for time series analysis
+6. You decompose the time series data into its additive components and plot them:
+7. You calculate the root mean squared error (RMSE) to evaluate the model's performance
+8. You calculate the mean and standard deviation of the entire sales dataset, then fit a Holt-
+Winters model to the entire dataset and make future predictions
+9. You plot the original sales data and the predictions
+## PROGRAM:
 ```
-
-import pandas as pd
+NAME: Abishek Xavier A
+REGNO : 212222230004
+```
+```
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_absolute_error,mean_squared_error
+import pandas as pd
 
-# Load the Superstore dataset
-# Replace the path with the location where the Kaggle dataset is stored
-data = pd.read_csv('/content/Super_Store_data.csv', parse_dates=['Order Date'], index_col='Order Date',encoding='ISO-8859-1')
+airline  = pd.read_csv('AirPassengers.csv',index_col='Month',parse_dates=True)
+airline.plot()
+airline.freq = 'MS'
+airline.index
+len(airline)
 
-# Filter for 'Furniture' sales
-furniture_sales = data[data['Category'] == 'Furniture']
+train_airline = airline[:108] 
+test_airline = airline[108:] 
+fitted_model = ExponentialSmoothing(train_airline['#Passengers'],trend='mul',seasonal='mul',seasonal_periods=12).fit()
+test_predictions = fitted_model.forecast(36).rename('HW Test Forecast')
 
-# Resample data to a monthly frequency (sum of sales per month)
-monthly_sales = furniture_sales['Sales'].resample('MS').sum()
+test_predictions[:10]
+train_airline['#Passengers'].plot(legend=True,label='TRAIN')
+test_airline['#Passengers'].plot(legend=True,label='TEST',figsize=(12,8))
+plt.title('Train and Test Data');
 
-# Scaling the Data using MinMaxScaler
-scaler = MinMaxScaler()
-sales_scaled = pd.Series(scaler.fit_transform(monthly_sales.values.reshape(-1, 1)).flatten(), index=monthly_sales.index)
+train_airline['#Passengers'].plot(legend=True,label='TRAIN')
+test_airline['#Passengers'].plot(legend=True,label='TEST',figsize=(12,8))
+test_predictions.plot(legend=True,label='PREDICTION')
+plt.title('Train, Test and Predicted Test using Holt Winters');
+print("Mean Absolute Error = ",mean_absolute_error(test_airline,test_predictions))
 
-# Split into training and testing sets (80% train, 20% test)
-train_data = sales_scaled[:int(len(sales_scaled) * 0.8)]
-test_data = sales_scaled[int(len(sales_scaled) * 0.8):]
+final_model = ExponentialSmoothing(airline['#Passengers'],trend='mul',seasonal='mul',seasonal_periods=12).fit()
+forecast_predictions = final_model.forecast(steps=36)
 
-# Step 2: Fit the Holt-Winters model with additive trend and seasonality
-fitted_model_add = ExponentialSmoothing(
-    train_data, trend='add', seasonal='add', seasonal_periods=12
-).fit()
-
-# Step 3: Forecast and evaluate
-test_predictions_add = fitted_model_add.forecast(len(test_data))
-
-# Evaluate performance
-print("MAE :", mean_absolute_error(test_data, test_predictions_add))
-print("RMSE :", mean_squared_error(test_data, test_predictions_add, squared=False))
-
-# Plot predictions
-plt.figure(figsize=(12, 8))
-plt.plot(train_data, label='TRAIN', color='black')
-plt.plot(test_data, label='TEST', color='green')
-plt.plot(test_predictions_add, label='PREDICTION', color='red')
-plt.title('Train, Test, and Additive Holt-Winters Predictions for Furniture Sales')
-plt.legend(loc='best')
-plt.show()
-
-# Step 4: Fit the final model on the entire dataset
-# Final model with additive trend and seasonality
-final_model = ExponentialSmoothing(
-    sales_scaled, trend='add', seasonal='add', seasonal_periods=12
-).fit()
-
-
-# Forecast future values (next 12 months)
-forecast_predictions = final_model.forecast(steps=12)
-
-# Step 5: Plot the actual and forecasted sales
-plt.figure(figsize=(12, 8))
-monthly_sales.plot(legend=True, label='Current Furniture Sales')
-forecast_predictions.plot(legend=True, label='Forecasted Furniture Sales')
-plt.xlabel('Date')
-plt.ylabel('Sales')
-plt.title('Furniture Sales Forecast')
-plt.show()
-
+airline['#Passengers'].plot(figsize=(12,8),legend=True,label='Current Airline Passengers')
+forecast_predictions.plot(legend=True,label='Forecasted Airline Passengers')
+plt.title('Airline Passenger Forecast');
 ```
+## OUTPUT:
 
-### OUTPUT:
+### TEST_PREDICTION
+![out1](https://github.com/user-attachments/assets/b2e1e48b-fb60-4094-bd4c-29c1e295cd24)
 
-![Screenshot 2024-10-14 103902](https://github.com/user-attachments/assets/4d418290-8495-4625-8554-9f46e62c5a3a)
+### FINAL_PREDICTION
+![out2](https://github.com/user-attachments/assets/66db14bf-f847-4db3-895f-13ea87449f46)
 
-
-#### TEST_PREDICTION
-![Screenshot 2024-10-14 103721](https://github.com/user-attachments/assets/df5f8c6e-0169-436a-89ec-3a3a22ab7c19)
-
-#### FINAL_PREDICTION
-![Screenshot 2024-10-14 103732](https://github.com/user-attachments/assets/b8081a78-d3f2-4a3c-a599-7604c4bbfcd1)
-
-### RESULT:
+## RESULT:
 Thus the program run successfully based on the Holt Winters Method model.
