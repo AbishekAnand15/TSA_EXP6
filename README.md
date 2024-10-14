@@ -70,14 +70,14 @@ plt.show()
 
 ### OUTPUT:
 
-![image](https://github.com/user-attachments/assets/d5e9e423-badf-43e8-a20a-f11dbaf47d2d)
+![Screenshot 2024-10-14 103902](https://github.com/user-attachments/assets/4d418290-8495-4625-8554-9f46e62c5a3a)
 
 
 #### TEST_PREDICTION
-![Untitled](https://github.com/user-attachments/assets/babcd073-db02-49c6-889b-1e67e042bb0c)
+![Screenshot 2024-10-14 103721](https://github.com/user-attachments/assets/df5f8c6e-0169-436a-89ec-3a3a22ab7c19)
 
 #### FINAL_PREDICTION
-![Untitled](https://github.com/user-attachments/assets/49696fd9-e49a-4436-83de-07b43db8ed31)
+![Screenshot 2024-10-14 103732](https://github.com/user-attachments/assets/b8081a78-d3f2-4a3c-a599-7604c4bbfcd1)
 
 ### RESULT:
 Thus the program run successfully based on the Holt Winters Method model.
